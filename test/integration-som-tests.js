@@ -1,0 +1,194 @@
+var som = require('../bin/node-som'),
+	should = require('should'),
+	fs = require('fs'),
+	path = require('path'),
+	Stats = require('fast-stats').Stats;
+
+describe('node-som integration tests', function() {
+
+
+	describe('options tests', function() {
+		it('classificationCount recoverable', function() {
+			var somInstance = new som({
+				inputLength: 5,
+				maxClusters: 1000,
+				loggingEnabled: false,
+				minAlpha: 0.5
+			});
+			somInstance.trainRandom();
+			somInstance.classify([1, 2, 3, 4, 5]);
+
+			should.exist(somInstance.classificationCount);
+			somInstance.classificationCount.should.equal(1);
+
+			var somMomento = somInstance.serialize();
+			var somRecovered = new som(JSON.parse(somMomento));
+
+			should.exist(somRecovered.classificationCount);
+			somRecovered.classificationCount.should.equal(1);
+		});
+	});
+
+	describe('train - group deviation', function() {
+		it('Standard Case', function() {
+			this.timeout(60000);
+
+			var inputLength = 7;
+			var maxClusters = 5;
+			var somInstance = new som({
+				inputLength: inputLength,
+				maxClusters: maxClusters,
+				loggingEnabled: false,
+				minAlpha: 0.5
+			});
+
+			somInstance.trainRandom();
+
+			var samplesCount = 1000000;
+			var samples = [];
+			for (var i = 0; i <= samplesCount - 1; i++) {
+				var inputs = [];
+				for (var j = 0; j <= inputLength - 1; j++)
+					inputs.push(somInstance.getRandomArbitary(0, 1));
+				samples.push(inputs);
+			}
+
+			var classificationGroups = {};
+			for (var i = 0; i <= samples.length - 1; i++) {
+				var sample = samples[i];
+				var group = somInstance.classify(sample);
+				if (classificationGroups[group] == null)
+					classificationGroups[group] = {
+						count: 0,
+						samples: []
+					};
+				classificationGroups[group].count++;
+				classificationGroups[group].samples.push(sample);
+			}
+
+			for (var i = 0; i <= maxClusters - 1; i++)
+				should.exist(classificationGroups[i]);
+
+			// calculate group deviations
+			var groupDeviations = {};
+			for (var groupKey in classificationGroups) {
+				var group = classificationGroups[groupKey];
+				var s = new Stats();
+				group.samples.forEach(function(sample) {
+					s.push(sample);
+				});
+				groupDeviations[groupKey] = {
+					amean: s.amean(),
+					gmean: s.gmean(),
+					stddev: s.stddev(),
+					gstddev: s.gstddev(),
+					moe: s.moe(),
+					range: s.range(),
+					median: s.median()
+				};
+			}
+
+			for (var groupKey in groupDeviations) {
+				var groupDeviation = groupDeviations[groupKey];
+				groupDeviation.moe.should.be.below(0.5);
+			}
+		});
+	});
+
+	describe('train', function() {
+		it('Standard Case', function() {
+			this.timeout(60000);
+
+			var inputLength = 7;
+			var maxClusters = 5;
+			var somInstance = new som({
+				inputLength: inputLength,
+				maxClusters: maxClusters,
+				loggingEnabled: false
+			});
+
+			somInstance.trainRandom();
+
+			var samplesCount = 1000000;
+			var samples = [];
+			for (var i = 0; i <= samplesCount - 1; i++) {
+				var inputs = [];
+				for (var j = 0; j <= inputLength - 1; j++)
+					inputs.push(somInstance.getRandomArbitary(0, 1));
+				samples.push(inputs);
+			}
+
+			var classificationGroups = {};
+			for (var i = 0; i <= samples.length - 1; i++) {
+				var sample = samples[i];
+				var group = somInstance.classify(sample);
+				if (classificationGroups[group] == null)
+					classificationGroups[group] = 0;
+				classificationGroups[group]++;
+			}
+
+			for (var i = 0; i <= maxClusters - 1; i++)
+				should.exist(classificationGroups[i]);
+		});
+	});
+
+
+	describe('momento', function() {
+		it('Standard Case', function() {
+			this.timeout(60000);
+
+			var inputLength = 7;
+			var maxClusters = 5;
+			var somInstance = new som({
+				inputLength: inputLength,
+				maxClusters: maxClusters,
+				loggingEnabled: false
+			});
+
+			somInstance.trainRandom();
+
+			var serialized = somInstance.serialize();
+
+			var deserializedSomInstance = new som(JSON.parse(serialized));
+			var momentoDeserialized = deserializedSomInstance.serialize();
+
+			momentoDeserialized.should.equal(serialized);
+		});
+
+		it('Training Outputs Equal', function() {
+			this.timeout(60000);
+
+			var samplesCount = 100000;
+			var samples = [];
+			for (var i = 0; i <= samplesCount - 1; i++) {
+				var inputs = [];
+				for (var j = 0; j <= inputLength - 1; j++)
+					inputs.push(somInstance.getRandomArbitary(0, 1));
+				samples.push(inputs);
+			}
+
+			var inputLength = 7;
+			var maxClusters = 5;
+			var somInstance = new som({
+				inputLength: inputLength,
+				maxClusters: maxClusters,
+				loggingEnabled: false
+			});
+
+			somInstance.trainRandom();
+
+			var serialized = somInstance.serialize();
+
+			var deserializedSomInstance = new som(JSON.parse(serialized));
+			var momentoDeserialized = deserializedSomInstance.serialize();
+
+			momentoDeserialized.should.equal(serialized);
+
+			samples.forEach(function(sample) {
+				var left = somInstance.classify(sample);
+				var right = deserializedSomInstance.classify(sample);
+				left.should.equal(right);
+			});
+		});
+	});
+});

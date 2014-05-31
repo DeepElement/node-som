@@ -1,0 +1,29 @@
+{
+  "author": "Todd Morrison",
+  "name": "node-som",
+  "private": false,
+  "description": "A Kohonen Network api for Node",
+  "version": "1.0.3",
+  "repository" :
+  { 
+    "type" : "git",
+    "url" : "git@github.com:DeepElement/node-som.git"
+  },
+  "licenses": [{
+    "type": "MIT",
+    "url": "http://opensource.org/licenses/MIT"
+    }],
+  "bin": {
+    "node-som": "./bin/node-som.js"
+  },
+  "main": "./bin/node-som",
+  "dependencies": {},
+  "devDependencies": {
+    "should": "2.1.1",
+    "mocha": "1.16.2",
+    "fast-stats" : "*"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}
