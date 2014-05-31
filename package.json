@@ -13,6 +13,12 @@
     "type": "MIT",
     "url": "http://opensource.org/licenses/MIT"
     }],
+     "homepage": "http://deepelement.github.io/node-som",
+  "author": {
+    "name": "Todd Morrison",
+    "email": "todd@deepelement.com",
+    "url": "http://www.deepelement.com"
+  },
   "bin": {
     "node-som": "./bin/node-som.js"
   },

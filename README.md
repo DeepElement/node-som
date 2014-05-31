@@ -1,4 +1,4 @@
-A Self Organizing Map implementation for NodeJS  v.1
+A Self Organizing Map implementation for NodeJS
 =====================================================
 
 ## Installation
