@@ -61,7 +61,7 @@ __Domain Normalization__
 
 If you have access to all of the input vectors, simply apply: 
 
-	normalizedInput[i] = input[i] - min(inputsAt[i]) / (max(inputsAt[i]) - min(inputsAt[i]));
+	normalizedInput[i] = (input[i] - min(inputsAt[i])) / (max(inputsAt[i]) - min(inputsAt[i]));
 
 _Note: for mutlidimensional input vectors, make sure you normalize component by component across all other input samples_
 
