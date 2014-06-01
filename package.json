@@ -3,7 +3,17 @@
   "name": "node-som",
   "private": false,
   "description": "A Kohonen Network api for Node",
-  "version": "1.0.6",
+  "version": "1.0.7",
+  "keywords": [
+    "som",
+    "self organizing map",
+    "sofm",
+    "kohonen",
+    "kohonen map",
+    "ai",
+    "artificial intelligence",
+    "machine learning"
+  ],
   "repository" :
   { 
     "type" : "git",

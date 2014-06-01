@@ -19,7 +19,7 @@ var result = analyzer.analyzeTrainingSet({
 	maxClusters: 1000,
 	decayRate: 0.96,
 	loggingEnabled: true,
-	inputPatterns: 500,
+	inputPatterns: 5000,
 	minAlpha: 0.01,
 	alpha: 0.6,
 	radiusReductionPoint: 0.023
