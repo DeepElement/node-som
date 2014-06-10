@@ -158,22 +158,24 @@ describe('node-som integration tests', function() {
 		it('Training Outputs Equal', function() {
 			this.timeout(60000);
 
-			var samplesCount = 100000;
+			var samplesCount = 1000;
 			var samples = [];
+			var inputLength = 7;
+			var maxClusters = 1000;
+
+			var somInstance = new som({
+				inputLength: inputLength,
+				maxClusters: maxClusters,
+				loggingEnabled: false,
+				inputPatterns: 1000,
+			});
+
 			for (var i = 0; i <= samplesCount - 1; i++) {
 				var inputs = [];
 				for (var j = 0; j <= inputLength - 1; j++)
 					inputs.push(somInstance.getRandomArbitary(0, 1));
 				samples.push(inputs);
 			}
-
-			var inputLength = 7;
-			var maxClusters = 5;
-			var somInstance = new som({
-				inputLength: inputLength,
-				maxClusters: maxClusters,
-				loggingEnabled: false
-			});
 
 			somInstance.trainRandom();
 

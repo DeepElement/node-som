@@ -31,6 +31,7 @@ som.prototype.log = function(msg) {
 }
 
 som.prototype.serialize = function() {
+	this.d = [];
 	return JSON.stringify(this);
 }
 
