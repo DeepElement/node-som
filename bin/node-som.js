@@ -47,6 +47,7 @@ som.prototype.trainRandom = function() {
 }
 
 som.prototype.train = function(inputPatterns) {
+	this.inputPatterns = inputPatterns;
 	som.prototype.training.call(this, inputPatterns);
 }
 

@@ -3,7 +3,7 @@
   "name": "node-som",
   "private": false,
   "description": "A Kohonen Network api for Node",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "keywords": [
     "som",
     "self organizing map",
