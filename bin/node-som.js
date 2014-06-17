@@ -21,7 +21,6 @@ var som = function(options) {
 	}
 
 	this.d = options.d || [];
-	this.pattern = options.pattern || [];
 }
 
 som.prototype.log = function(msg) {
@@ -46,9 +45,8 @@ som.prototype.trainRandom = function() {
 	som.prototype.training.call(this, pattern);
 }
 
-som.prototype.train = function(inputPatterns) {
-	this.inputPatterns = inputPatterns;
-	som.prototype.training.call(this, inputPatterns);
+som.prototype.train = function(inputs) {
+	som.prototype.training.call(this, inputs);
 }
 
 som.prototype.classify = function(inputs) {
@@ -59,7 +57,6 @@ som.prototype.classify = function(inputs) {
 }
 
 som.prototype.training = function(trainingPattern) {
-	this.pattern = trainingPattern;
 	var iterations = 0;
 	var reductionFlag = false;
 	var reductionPoint = 0;
@@ -69,10 +66,10 @@ som.prototype.training = function(trainingPattern) {
 	do {
 		iterations += 1;
 
-		for (vecNum = 0; vecNum <= (this.inputPatterns - 1); vecNum++) {
-			som.prototype.computeInput.call(this, this.pattern, vecNum);
+		for (vecNum = 0; vecNum <= trainingPattern.length - 1; vecNum++) {
+			som.prototype.computeInput.call(this, trainingPattern, vecNum);
 			dMin = som.prototype.minimum.call(this, this.d);
-			som.prototype.updateWeights.call(this, vecNum, dMin);
+			som.prototype.updateWeights.call(this, trainingPattern, vecNum, dMin);
 		}
 
 		this.alpha = this.decayRate * this.alpha;
@@ -104,24 +101,24 @@ som.prototype.computeInput = function(vectorArray, vectorNumber) {
 	}
 }
 
-som.prototype.updateWeights = function(vectorNumber, dMin) {
+som.prototype.updateWeights = function(trainingPattern, vectorNumber, dMin) {
 	for (i = 0; i <= (this.vecLen - 1); i++) {
-		this.w[dMin][i] = this.w[dMin][i] + (this.alpha * (this.pattern[vectorNumber][i] -
+		this.w[dMin][i] = this.w[dMin][i] + (this.alpha * (trainingPattern[vectorNumber][i] -
 			this.w[dMin][i]));
 
 		if (this.alpha > this.radiusReductionPoint) {
 			if ((dMin > 0) && (dMin < (this.maxClusters - 1))) {
 				this.w[dMin - 1][i] = this.w[dMin - 1][i] +
-					(this.alpha * (this.pattern[vectorNumber][i] - this.w[dMin - 1][i]));
+					(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin - 1][i]));
 				this.w[dMin + 1][i] = this.w[dMin + 1][i] +
-					(this.alpha * (this.pattern[vectorNumber][i] - this.w[dMin + 1][i]));
+					(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin + 1][i]));
 			} else {
 				if (dMin == 0) {
 					this.w[dMin + 1][i] = this.w[dMin + 1][i] +
-						(this.alpha * (this.pattern[vectorNumber][i] - this.w[dMin + 1][i]));
+						(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin + 1][i]));
 				} else {
 					this.w[dMin - 1][i] = this.w[dMin - 1][i] +
-						(this.alpha * (this.pattern[vectorNumber][i] - this.w[dMin - 1][i]));
+						(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin - 1][i]));
 				}
 			}
 		}
