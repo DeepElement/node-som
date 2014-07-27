@@ -3,7 +3,7 @@
   "name": "node-som",
   "private": false,
   "description": "A Kohonen Network api for Node",
-  "version": "1.0.10",
+  "version": "1.5.0",
   "keywords": [
     "som",
     "self organizing map",
@@ -14,16 +14,15 @@
     "artificial intelligence",
     "machine learning"
   ],
-  "repository" :
-  { 
-    "type" : "git",
-    "url" : "git@github.com:DeepElement/node-som.git"
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:DeepElement/node-som.git"
   },
   "licenses": [{
     "type": "MIT",
     "url": "http://opensource.org/licenses/MIT"
-    }],
-     "homepage": "http://deepelement.github.io/node-som",
+  }],
+  "homepage": "http://deepelement.github.io/node-som",
   "author": {
     "name": "Todd Morrison",
     "email": "todd@deepelement.com",
@@ -33,11 +32,12 @@
     "node-som": "./bin/node-som.js"
   },
   "main": "./bin/node-som",
-  "dependencies": {},
+  "dependencies": {
+    "fast-stats": "0.0.2"
+  },
   "devDependencies": {
     "should": "2.1.1",
-    "mocha": "1.16.2",
-    "fast-stats" : "*"
+    "mocha": "1.16.2"
   },
   "scripts": {
     "test": "mocha"

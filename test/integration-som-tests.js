@@ -15,7 +15,7 @@ describe('node-som integration tests', function() {
 				loggingEnabled: false,
 				minAlpha: 0.5
 			});
-			somInstance.trainRandom();
+			somInstance.train();
 			somInstance.classify([1, 2, 3, 4, 5]);
 
 			should.exist(somInstance.classificationCount);
@@ -42,14 +42,14 @@ describe('node-som integration tests', function() {
 				minAlpha: 0.5
 			});
 
-			somInstance.trainRandom();
+			somInstance.train();
 
 			var samplesCount = 1000000;
 			var samples = [];
 			for (var i = 0; i <= samplesCount - 1; i++) {
 				var inputs = [];
 				for (var j = 0; j <= inputLength - 1; j++)
-					inputs.push(somInstance.getRandomArbitary(0, 1));
+					inputs.push(somInstance._getRandomArbitary(0, 1));
 				samples.push(inputs);
 			}
 
@@ -107,14 +107,14 @@ describe('node-som integration tests', function() {
 				loggingEnabled: false
 			});
 
-			somInstance.trainRandom();
+			somInstance.train();
 
 			var samplesCount = 1000000;
 			var samples = [];
 			for (var i = 0; i <= samplesCount - 1; i++) {
 				var inputs = [];
 				for (var j = 0; j <= inputLength - 1; j++)
-					inputs.push(somInstance.getRandomArbitary(0, 1));
+					inputs.push(somInstance._getRandomArbitary(0, 1));
 				samples.push(inputs);
 			}
 
@@ -145,7 +145,7 @@ describe('node-som integration tests', function() {
 				loggingEnabled: false
 			});
 
-			somInstance.trainRandom();
+			somInstance.train();
 
 			var serialized = somInstance.serialize();
 
@@ -160,24 +160,24 @@ describe('node-som integration tests', function() {
 
 			var samplesCount = 1000;
 			var samples = [];
-			var inputLength = 7;
+			var inputLength = 10;
 			var maxClusters = 1000;
 
 			var somInstance = new som({
 				inputLength: inputLength,
 				maxClusters: maxClusters,
 				loggingEnabled: false,
-				inputPatterns: 1000,
+				inputPatterns: 10,
 			});
 
 			for (var i = 0; i <= samplesCount - 1; i++) {
 				var inputs = [];
 				for (var j = 0; j <= inputLength - 1; j++)
-					inputs.push(somInstance.getRandomArbitary(0, 1));
+					inputs.push(somInstance._getRandomArbitary(0, 1));
 				samples.push(inputs);
 			}
 
-			somInstance.trainRandom();
+			somInstance.train();
 
 			var serialized = somInstance.serialize();
 
@@ -186,8 +186,11 @@ describe('node-som integration tests', function() {
 
 			momentoDeserialized.should.equal(serialized);
 
+			var distinctGroups = [];
 			samples.forEach(function(sample) {
 				var left = somInstance.classify(sample);
+				if(distinctGroups.indexOf(left) == -1)
+					distinctGroups.push(left);
 				var right = deserializedSomInstance.classify(sample);
 				left.should.equal(right);
 			});

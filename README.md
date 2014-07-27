@@ -3,9 +3,9 @@ A Kohonen Network api for Node
 
 ## Installation
 
-npm install node-som
+`npm install node-som`
 
-## Usage:
+## Usage
 
 ```
 // Inject the module
@@ -15,59 +15,110 @@ var som = require('node-som');
 var somInstance = new som({
 	inputLength: 2,
 	maxClusters: 5,
-	loggingEnabled: true
+	loggingEnabled: true,
+	scale: {
+		min : 0,
+		max : 1000
+	}
 });
 
-// Train (all automatic)
+// Train (all automatic). Optionally, you can include custom input vectors, but 
+// it is recommended that developers allow the automated training (based on the 
+// `scale` configuration) since this results in better networks
 somInstance.train();
 
 // Create input array. 
 // All items features should be normalized to domain [0,1]
 var sample = [0.24, 0.34];
 
-// Call classify
+// Call classify to receive your classification group/neuron
 var group = somInstance.classify(sample);
 
-// Your result will be a group within the cluster boundaries
+// For the sake of intelligence, you can then extract your 
+// domain boundaries from a stored group by component.
+var groupDomainBoundaries = somInstance.extract(group);
+
+// The output is enough to do some pretty hardcore analysis on
+// the cluster domain (wisker plot, etc)
+//
+// groupDomainBoundaries = [ 
+//  { range: [ 0.002023763954639435, 999.9967189505696 ],
+//    amean: 498.7489069010919,
+//    gmean: 366.71135268678785,
+//    median: 498.73221735469997,
+//    stddev: 287.81665907708333,
+//    gstddev: 2.7296960810401862,
+//    moe: 1.7839061347985679 },
+//  { range: [ 0.0025222543627023697, 999.9986472539604 ],
+//    amean: 501.4137114080192,
+//    gmean: 370.21158812427205,
+//    median: 500.92090992257,
+//    stddev: 288.3074606679444,
+//    gstddev: 2.6996348342872674,
+//    moe: 1.7869481545750234 } ]
+
 
 ```
 
 ## Options
+###loggingEnabled (bool)
+Enables/Disables logging on the console
 
-__loggingEnabled__ (bool)
+###maxClusters (Integer) 
+Max number of Classification groups to use. This is an upper-bound and an optimized network usually contains less than this number.
 
-__maxClusters__ (Integer) - Max number of Classification groups to use. This is an upper-bound and an optimized network usually contains less than this number.
+###created (Date) 
+When the network was initially created
 
-__created__ (Date) - When the network was initially created
+###classificationCount (Integer) 
+Represents the number of classifications run through the network. Used as a metric of maturity.
 
-__classificationCount__ (Integer) - Represents the number of classifications run through the network. Used as a metric of maturity.
+###inputLength (Integer) 
+Component length of input vectors
 
-__inputLength__ (Integer) - Component length of input vectors
+###inputPatterns (Integer) 
+Represents the number of random samples to self-train on. Higher numbers cost more, but can result in more granular groups
 
-__decayRate__ (Double) - TODO
+###scale (Complex) 
+Tells the SOM how to train to insure high accuracy on the target domain. ex. {min: -1000, max: 1000}
 
-__minAlpha__ (Double) - TODO
+## API
 
-__alpha__ (Double) - TODO
+###train 
+Accepts an array of unscaled input vectors of ordinal length `inputLength`. The implementation scales itself, based on the `scale` constructor configuration.
 
-__radiusReductionPoint__ (Double) - TODO
+If no training vectors are provided, Recommended, a random set is generated and trained based on the `__inputPatterns__` configuration. 
 
-__inputPatterns__ (Integer) - Represents the number of random samples to self-train on. Higher numbers cost more, but can result in more granular groups
+_Note: this results in the most optimized network_
 
-## Input Scaling
-No matter how tricked-out the network, you must collapse your input patterns into a [0,1] domain. Since the result of a Kohonen network for classification is to surface the dominant node, you don't have to worry about descaling the classification result.
+###classify
+Given a single unscaled input vector, will return the classification/neuron that best describes the input based on the network state
 
-__Domain Normalization__
+###extract
+Given a classication/neuron, will return component statistics for unscaled input vector extraction. Statistics are in the form of component ranges.
 
-If you have access to all of the input vectors, simply apply: 
+Its up to the developer to use this information to infer about their own domain, since the network doesn't hold on to the entire input domain upon training/classification (for momento purposes).
 
-	normalizedInput[i] = (input[i] - min(inputsAt[i])) / (max(inputsAt[i]) - min(inputsAt[i]));
+###serialize
+Serialize the network for future use. 
 
-_Note: for mutlidimensional input vectors, make sure you normalize component by component across all other input samples_
+Reloading the network can be done by passing the serialized json into the constructor on instantiation. 
 
-This is a reliable method that keeps unit proportions in-tact, in the event you want to actually validate the normalized array visually. 
+###scaleInput
+Scales a vector of `inputLength` based on the SOM's `scale` boundaries. 
 
-__Log Scaling__
+_Note: scaling is done internally. No need to do this unless extending the network implementation _
 
-TODO: Fill-in example!
+###descaleInput
+ Descales a scalled vector of `inputLength` based on the SOM's `scale` boundaries.
 
+_Note: descaling is done internally. No need to do this unless extending the network implementation.  _
+
+
+#Samples
+## Colors Clustering
+This example shows how the SOM can adaptively cluster a random RGB input space based on the network's training state. 
+
+run `node examples/colors/colors-cluster.js` from the root of the application.
+
+After the batch script has completed running, open the resulting html file with `open examples/colors/color.html`
