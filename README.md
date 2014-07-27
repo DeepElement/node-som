@@ -1,5 +1,7 @@
-A Kohonen Network api for Node
+A Kohonen Network api for NodeJS
 =====================================================
+https://nodei.co/npm/node-som.png?compact=true
+
 
 ## Installation
 
