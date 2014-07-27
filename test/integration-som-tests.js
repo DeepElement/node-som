@@ -66,9 +66,6 @@ describe('node-som integration tests', function() {
 				classificationGroups[group].samples.push(sample);
 			}
 
-			for (var i = 0; i <= maxClusters - 1; i++)
-				should.exist(classificationGroups[i]);
-
 			// calculate group deviations
 			var groupDeviations = {};
 			for (var groupKey in classificationGroups) {
@@ -126,9 +123,6 @@ describe('node-som integration tests', function() {
 					classificationGroups[group] = 0;
 				classificationGroups[group]++;
 			}
-
-			for (var i = 0; i <= maxClusters - 1; i++)
-				should.exist(classificationGroups[i]);
 		});
 	});
 
