@@ -1,7 +1,7 @@
 A Kohonen Network api for NodeJS
 =====================================================
-[![Build Status](https://travis-ci.org/DeepElement/node-som.png?branch=master)](https://travis-ci.org/DeepElement/node-som)  [![npm status](https://nodei.co/npm/node-som.png?compact=true)](https://nodei.co/npm/node-som.png?compact=true)
-
+[![npm status](https://nodei.co/npm/node-som.png?compact=true)](https://nodei.co/npm/node-som.png?compact=true)
+[![Build Status](https://travis-ci.org/DeepElement/node-som.png?branch=master)](https://travis-ci.org/DeepElement/node-som)  
 
 ## Installation
 
