@@ -29,15 +29,18 @@
     <div class="container">
       <section id="main_content">
         <h1>
-<a name="a-kohonen-network-api-for-node" class="anchor" href="#a-kohonen-network-api-for-node"><span class="octicon octicon-link"></span></a>A Kohonen Network api for Node</h1>
+<a name="a-kohonen-network-api-for-nodejs" class="anchor" href="#a-kohonen-network-api-for-nodejs"><span class="octicon octicon-link"></span></a>A Kohonen Network api for NodeJS</h1>
+
+<p><a href="https://nodei.co/npm/node-som.png?compact=true"><img src="https://nodei.co/npm/node-som.png?compact=true" alt="npm status"></a>
+<a href="https://travis-ci.org/DeepElement/node-som"><img src="https://travis-ci.org/DeepElement/node-som.png?branch=master" alt="Build Status"></a>  </p>
 
 <h2>
 <a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>npm install node-som</p>
+<p><code>npm install node-som</code></p>
 
 <h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage:</h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
 <pre><code>// Inject the module
 var som = require('node-som');
@@ -46,65 +49,145 @@ var som = require('node-som');
 var somInstance = new som({
     inputLength: 2,
     maxClusters: 5,
-    loggingEnabled: true
+    loggingEnabled: true,
+    scale: {
+        min : 0,
+        max : 1000
+    }
 });
 
-// Train (all automatic)
+// Train (all automatic). Optionally, you can include custom input vectors, but 
+// it is recommended that developers allow the automated training (based on the 
+// `scale` configuration) since this results in better networks
 somInstance.train();
 
 // Create input array. 
 // All items features should be normalized to domain [0,1]
 var sample = [0.24, 0.34];
 
-// Call classify
+// Call classify to receive your classification group/neuron
 var group = somInstance.classify(sample);
 
-// Your result will be a group within the cluster boundaries
+// For the sake of intelligence, you can then extract your 
+// domain boundaries from a stored group by component.
+var groupDomainBoundaries = somInstance.extract(group);
+
+// The output is enough to do some pretty hardcore analysis on
+// the cluster domain (wisker plot, etc)
+//
+// groupDomainBoundaries = [ 
+//  { range: [ 0.002023763954639435, 999.9967189505696 ],
+//    amean: 498.7489069010919,
+//    gmean: 366.71135268678785,
+//    median: 498.73221735469997,
+//    stddev: 287.81665907708333,
+//    gstddev: 2.7296960810401862,
+//    moe: 1.7839061347985679 },
+//  { range: [ 0.0025222543627023697, 999.9986472539604 ],
+//    amean: 501.4137114080192,
+//    gmean: 370.21158812427205,
+//    median: 500.92090992257,
+//    stddev: 288.3074606679444,
+//    gstddev: 2.6996348342872674,
+//    moe: 1.7869481545750234 } ]
+
 
 </code></pre>
 
 <h2>
 <a name="options" class="anchor" href="#options"><span class="octicon octicon-link"></span></a>Options</h2>
 
-<p><strong>loggingEnabled</strong> (bool)</p>
+<h3>
+<a name="loggingenabled-bool" class="anchor" href="#loggingenabled-bool"><span class="octicon octicon-link"></span></a>loggingEnabled (bool)</h3>
 
-<p><strong>maxClusters</strong> (Integer) - Max number of Classification groups to use. This is an upper-bound and an optimized network usually contains less than this number.</p>
+<p>Enables/Disables logging on the console</p>
 
-<p><strong>created</strong> (Date) - When the network was initially created</p>
+<h3>
+<a name="maxclusters-integer" class="anchor" href="#maxclusters-integer"><span class="octicon octicon-link"></span></a>maxClusters (Integer)</h3>
 
-<p><strong>classificationCount</strong> (Integer) - Represents the number of classifications run through the network. Used as a metric of maturity.</p>
+<p>Max number of Classification groups to use. This is an upper-bound and an optimized network usually contains less than this number.</p>
 
-<p><strong>inputLength</strong> (Integer) - Component length of input vectors</p>
+<h3>
+<a name="created-date" class="anchor" href="#created-date"><span class="octicon octicon-link"></span></a>created (Date)</h3>
 
-<p><strong>decayRate</strong> (Double) - TODO</p>
+<p>When the network was initially created</p>
 
-<p><strong>minAlpha</strong> (Double) - TODO</p>
+<h3>
+<a name="classificationcount-integer" class="anchor" href="#classificationcount-integer"><span class="octicon octicon-link"></span></a>classificationCount (Integer)</h3>
 
-<p><strong>alpha</strong> (Double) - TODO</p>
+<p>Represents the number of classifications run through the network. Used as a metric of maturity.</p>
 
-<p><strong>radiusReductionPoint</strong> (Double) - TODO</p>
+<h3>
+<a name="inputlength-integer" class="anchor" href="#inputlength-integer"><span class="octicon octicon-link"></span></a>inputLength (Integer)</h3>
 
-<p><strong>inputPatterns</strong> (Integer) - Represents the number of random samples to self-train on. Higher numbers cost more, but can result in more granular groups</p>
+<p>Component length of input vectors</p>
+
+<h3>
+<a name="inputpatterns-integer" class="anchor" href="#inputpatterns-integer"><span class="octicon octicon-link"></span></a>inputPatterns (Integer)</h3>
+
+<p>Represents the number of random samples to self-train on. Higher numbers cost more, but can result in more granular groups</p>
+
+<h3>
+<a name="scale-complex" class="anchor" href="#scale-complex"><span class="octicon octicon-link"></span></a>scale (Complex)</h3>
+
+<p>Tells the SOM how to train to insure high accuracy on the target domain. ex. {min: -1000, max: 1000}</p>
 
 <h2>
-<a name="input-scaling" class="anchor" href="#input-scaling"><span class="octicon octicon-link"></span></a>Input Scaling</h2>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
 
-<p>No matter how tricked-out the network, you must collapse your input patterns into a [0,1] domain. Since the result of a Kohonen network for classification is to surface the dominant node, you don't have to worry about descaling the classification result.</p>
+<h3>
+<a name="train" class="anchor" href="#train"><span class="octicon octicon-link"></span></a>train</h3>
 
-<p><strong>Domain Normalization</strong></p>
+<p>Accepts an array of unscaled input vectors of ordinal length <code>inputLength</code>. The implementation scales itself, based on the <code>scale</code> constructor configuration.</p>
 
-<p>If you have access to all of the input vectors, simply apply: </p>
+<p>If no training vectors are provided, Recommended, a random set is generated and trained based on the <code>__inputPatterns__</code> configuration. </p>
 
-<pre><code>normalizedInput[i] = input[i] - min(inputsAt[i]) / (max(inputsAt[i]) - min(inputsAt[i]));
-</code></pre>
+<p><em>Note: this results in the most optimized network</em></p>
 
-<p><em>Note: for mutlidimensional input vectors, make sure you normalize component by component across all other input samples</em></p>
+<h3>
+<a name="classify" class="anchor" href="#classify"><span class="octicon octicon-link"></span></a>classify</h3>
 
-<p>This is a reliable method that keeps unit proportions in-tact, in the event you want to actually validate the normalized array visually. </p>
+<p>Given a single unscaled input vector, will return the classification/neuron that best describes the input based on the network state</p>
 
-<p><strong>Log Scaling</strong></p>
+<h3>
+<a name="extract" class="anchor" href="#extract"><span class="octicon octicon-link"></span></a>extract</h3>
 
-<p>TODO: Fill-in example!</p>
+<p>Given a classication/neuron, will return component statistics for unscaled input vector extraction. Statistics are in the form of component ranges.</p>
+
+<p>Its up to the developer to use this information to infer about their own domain, since the network doesn't hold on to the entire input domain upon training/classification (for momento purposes).</p>
+
+<h3>
+<a name="serialize" class="anchor" href="#serialize"><span class="octicon octicon-link"></span></a>serialize</h3>
+
+<p>Serialize the network for future use. </p>
+
+<p>Reloading the network can be done by passing the serialized json into the constructor on instantiation. </p>
+
+<h3>
+<a name="scaleinput" class="anchor" href="#scaleinput"><span class="octicon octicon-link"></span></a>scaleInput</h3>
+
+<p>Scales a vector of <code>inputLength</code> based on the SOM's <code>scale</code> boundaries. </p>
+
+<p>_Note: scaling is done internally. No need to do this unless extending the network implementation _</p>
+
+<h3>
+<a name="descaleinput" class="anchor" href="#descaleinput"><span class="octicon octicon-link"></span></a>descaleInput</h3>
+
+<p>Descales a scalled vector of <code>inputLength</code> based on the SOM's <code>scale</code> boundaries.</p>
+
+<p>_Note: descaling is done internally. No need to do this unless extending the network implementation.  _</p>
+
+<h1>
+<a name="samples" class="anchor" href="#samples"><span class="octicon octicon-link"></span></a>Samples</h1>
+
+<h2>
+<a name="colors-clustering" class="anchor" href="#colors-clustering"><span class="octicon octicon-link"></span></a>Colors Clustering</h2>
+
+<p>This example shows how the SOM can adaptively cluster a random RGB input space based on the network's training state. </p>
+
+<p>run <code>node examples/colors/colors-cluster.js</code> from the root of the application.</p>
+
+<p>After the batch script has completed running, open the resulting html file with <code>open examples/colors/color.html</code></p>
       </section>
     </div>
 
