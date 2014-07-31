@@ -216,7 +216,7 @@ som.prototype._trainRandom = function() {
 			weightVector.push(this._getRandomArbitary(this.scale.min, this.scale.max));
 		pattern.push(weightVector);
 	}
-	som.prototype._training.call(this, pattern);
+	som.prototype.train.call(this, pattern);
 }
 
 
