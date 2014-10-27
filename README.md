@@ -1,15 +1,33 @@
-A Kohonen Network api for NodeJS
+A Kohonen Network API for Node.js
 =====================================================
+
+The Self-Organizing Map (commonly also known as Kohonen network) defines an ordered mapping, a kind of projection from a set of given data items onto a regular, usually two-dimensional grid.
+
 [![npm status](https://nodei.co/npm/node-som.png?compact=true)](https://nodei.co/npm/node-som.png?compact=true)
-[![Build Status](https://travis-ci.org/DeepElement/node-som.png?branch=master)](https://travis-ci.org/DeepElement/node-som)  
+
+
+[![Build Status](https://travis-ci.org/DeepElement/node-som.png?branch=master)](https://travis-ci.org/DeepElement/node-som)
 
 ## Installation
 
-`npm install node-som`
+~~~ sh
+$ npm install node-som
+~~~
+
+## Color Clustering Example
+
+[This example](https://github.com/DeepElement/node-som/blob/master/examples/colors/colors-cluster.js) shows how the SOM can adaptively cluster a random RGB input space based on the network's training state.
+
+~~~ sh
+$ npm install node-som
+$ cd node_modules/node-som/
+$ node examples/colors/colors-cluster.js
+$ open examples/colors/color.html
+~~~
 
 ## Usage
 
-```
+~~~ js
 // Inject the module
 var som = require('node-som');
 
@@ -24,43 +42,51 @@ var somInstance = new som({
 	}
 });
 
-// Train (all automatic). Optionally, you can include custom input vectors, but 
-// it is recommended that developers allow the automated training (based on the 
-// `scale` configuration) since this results in better networks
-somInstance.train();
+/**
+ * Train (all automatic). Optionally, you can include custom input vectors, but 
+ * it is recommended that developers allow the automated training (based on the 
+ * `scale` configuration) since this results in better networks
+ */
+ somInstance.train();
 
-// Create input array. 
-// All items features should be normalized to domain [0,1]
+/**
+ * Create input array. 
+ * All items features should be normalized to domain [0,1]
+ */
 var sample = [0.24, 0.34];
 
 // Call classify to receive your classification group/neuron
 var group = somInstance.classify(sample);
 
-// For the sake of intelligence, you can then extract your 
-// domain boundaries from a stored group by component.
+/**
+ * For the sake of intelligence, you can then extract your
+ * domain boundaries from a stored group by component.
+ */
 var groupDomainBoundaries = somInstance.extract(group);
 
-// The output is enough to do some pretty hardcore analysis on
-// the cluster domain (wisker plot, etc)
-//
-// groupDomainBoundaries = [ 
-//  { range: [ 0.002023763954639435, 999.9967189505696 ],
-//    amean: 498.7489069010919,
-//    gmean: 366.71135268678785,
-//    median: 498.73221735469997,
-//    stddev: 287.81665907708333,
-//    gstddev: 2.7296960810401862,
-//    moe: 1.7839061347985679 },
-//  { range: [ 0.0025222543627023697, 999.9986472539604 ],
-//    amean: 501.4137114080192,
-//    gmean: 370.21158812427205,
-//    median: 500.92090992257,
-//    stddev: 288.3074606679444,
-//    gstddev: 2.6996348342872674,
-//    moe: 1.7869481545750234 } ]
+console.log(groupDomainBoundaries);
 
+~~~
 
-```
+The output is enough to do some pretty hardcore analysis on the cluster domain (wisker plot, etc)
+
+~~~ js
+ groupDomainBoundaries = [ 
+  { range: [ 0.002023763954639435, 999.9967189505696 ],
+    amean: 498.7489069010919,
+    gmean: 366.71135268678785,
+    median: 498.73221735469997,
+    stddev: 287.81665907708333,
+    gstddev: 2.7296960810401862,
+    moe: 1.7839061347985679 },
+  { range: [ 0.0025222543627023697, 999.9986472539604 ],
+    amean: 501.4137114080192,
+    gmean: 370.21158812427205,
+    median: 500.92090992257,
+    stddev: 288.3074606679444,
+    gstddev: 2.6996348342872674,
+    moe: 1.7869481545750234 } ]
+~~~
 
 ## Options
 ###loggingEnabled (bool)
@@ -91,7 +117,7 @@ Accepts an array of unscaled input vectors of ordinal length `inputLength`. The 
 
 If no training vectors are provided, Recommended, a random set is generated and trained based on the `__inputPatterns__` configuration. 
 
-_Note: this results in the most optimized network_
+> Note: This results in the most optimized network.
 
 ###classify
 Given a single unscaled input vector, will return the classification/neuron that best describes the input based on the network state
@@ -109,18 +135,9 @@ Reloading the network can be done by passing the serialized json into the constr
 ###scaleInput
 Scales a vector of `inputLength` based on the SOM's `scale` boundaries. 
 
-_Note: scaling is done internally. No need to do this unless extending the network implementation _
+> Note: Scaling is done internally. No need to do this unless extending the network implementation.
 
 ###descaleInput
  Descales a scalled vector of `inputLength` based on the SOM's `scale` boundaries.
 
-_Note: descaling is done internally. No need to do this unless extending the network implementation.  _
-
-
-#Samples
-## Colors Clustering
-This example shows how the SOM can adaptively cluster a random RGB input space based on the network's training state. 
-
-run `node examples/colors/colors-cluster.js` from the root of the application.
-
-After the batch script has completed running, open the resulting html file with `open examples/colors/color.html`
+> Note: Descaling is done internally. No need to do this unless extending the network implementation.
