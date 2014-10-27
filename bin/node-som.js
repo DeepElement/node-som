@@ -1,237 +1,141 @@
-var Stats = require('fast-stats').Stats;
-
-var som = function(options) {
-	this.loggingEnabled = options.loggingEnabled || false;
-	this.maxClusters = options.maxClusters || 100;
-	this.created = options.created || new Date();
-	this.classificationCount = options.classificationCount || 0;
-	this.vecLen = options.vecLen || options.inputLength || 7;
-	this.decayRate = options.decayRate || 0.96;
-	this.minAlpha = options.minAlpha || 0.01;
-	this.radiusReductionPoint = options.radiusReductionPoint || 0.023;
-	this.alpha = options.alpha || 0.6;
-	this.inputPatterns = options.inputPatterns || 50;
-	this.scale = options.scale || {
-		min: -10000,
-		max: 10000
-	};
-	this.classificationDomainTrainingCount = options.classificationDomainTrainingCount || 100000;
-
-	this.w = options.w || [];
-	if (!options.w) {
-		for (var i = 0; i <= this.maxClusters - 1; i++) {
-			var weightVector = [];
-			for (var j = 0; j <= this.vecLen - 1; j++)
-				weightVector.push(som.prototype._getRandomArbitary(0, 1));
-			this.w.push(weightVector);
-		}
-	}
-
-	this._nodeStatistics = options._nodeStatistics || {};
-	this.d = options.d || [];
-}
-
-som.prototype.scaleInput = function(subject) {
-	return (subject - this.scale.min) / (this.scale.max - this.scale.min);
+var Stats = require("fast-stats").Stats;
+Math.log10 || (Math.log10 = function(a) {
+  return Math.log(a) / Math.LN10;
+});
+var som = function(a) {
+  this.loggingEnabled = a.loggingEnabled || !1;
+  this.maxClusters = a.maxClusters || 100;
+  this.created = a.created || new Date;
+  this.classificationCount = a.classificationCount || 0;
+  this.vecLen = a.vecLen || a.inputLength || 7;
+  this.decayRate = a.decayRate || .96;
+  this.minAlpha = a.minAlpha || .01;
+  this.radiusReductionPoint = a.radiusReductionPoint || .023;
+  this.alpha = a.alpha || .6;
+  this.inputPatterns = a.inputPatterns || 50;
+  this.scale = a.scale || {min:-1E4, max:1E4};
+  this.classificationDomainTrainingCount = a.classificationDomainTrainingCount || 1E5;
+  this.w = a.w || [];
+  if (!a.w) {
+    for (var b = 0;b <= this.maxClusters - 1;b++) {
+      for (var c = [], d = 0;d <= this.vecLen - 1;d++) {
+        c.push(som.prototype._getRandomArbitary(0, 1));
+      }
+      this.w.push(c);
+    }
+  }
+  this._nodeStatistics = a._nodeStatistics || {};
+  this.d = a.d || [];
 };
-
-som.prototype.descaleInput = function(subject) {
-	return (subject * (this.scale.max - this.scale.min)) + this.scale.min;
+som.prototype.scaleInput = function(a) {
+  var b = Math.min(this.scale.min, this.scale.max), c = Math.abs(0 > b ? b : 0) + 1, b = Math.log(this.scale.min + c), d = Math.log(this.scale.max + c);
+  a = Math.log(a + c);
+  Math.exp(a);
+  return(a - b) / (d - b);
 };
-
-
+som.prototype.descaleInput = function(a) {
+  var b = Math.min(this.scale.min, this.scale.max), b = Math.abs(0 > b ? b : 0) + 1, c = Math.log(this.scale.min + b), d = Math.log(this.scale.max + b);
+  return Math.exp(a * (d - c) + c) - b;
+};
 som.prototype.serialize = function() {
-	this.d = [];
-	return JSON.stringify(this);
-}
-
-som.prototype.train = function(inputs) {
-	if (!inputs || (inputs && inputs.length == 0)) {
-		som.prototype._trainRandom.call(this);
-	} else
-		som.prototype._training.call(this, inputs);
-}
-
-som.prototype.classify = function(inputs) {
-	var scaledInputs = [];
-	for (var i = 0; i <= inputs.length - 1; i++)
-		scaledInputs.push(this.scaleInput(inputs[i]));
-
-	this.classificationCount++;
-	som.prototype._computeInput.call(this, [scaledInputs], 0);
-	dMin = som.prototype._minimum.call(this, this.d);
-	return dMin;
-}
-
-som.prototype.extract = function(classification) {
-	var r = this._nodeStatistics[classification];
-	if(r)
-		return r;
-	return [];
-}
-
-som.prototype._training = function(trainingPattern) {
-	var iterations = 0;
-	var reductionFlag = false;
-	var reductionPoint = 0;
-	var dMin = 0;
-
-	som.prototype._log.call(this, 'Neighborhood radius target ' + this.radiusReductionPoint + ' training...');
-	do {
-		iterations += 1;
-
-		for (vecNum = 0; vecNum <= trainingPattern.length - 1; vecNum++) {
-			som.prototype._computeInput.call(this, trainingPattern, vecNum);
-			dMin = som.prototype._minimum.call(this, this.d);
-			som.prototype._updateWeights.call(this, trainingPattern, vecNum, dMin);
-		}
-
-		this.alpha = this.decayRate * this.alpha;
-		if (this.alpha < this.radiusReductionPoint) {
-			if (reductionFlag == false) {
-				reductionFlag = true;
-				reductionPoint = iterations;
-			}
-		}
-
-		som.prototype._log.call(this, 'Neighborhood radius ' + this.alpha + ' after ' + iterations + ' iterations.');
-	} while (this.alpha > this.minAlpha);
-
-	som.prototype._log.call(this, 'Iterations: ' + iterations + '');
-	som.prototype.iterations = iterations;
-
-	som.prototype._log.call(this, 'Neighborhood radius reduced after ' +
-		reductionPoint + ' iterations.');
-
-	som.prototype._buildStatistics.call(this);
-}
-
-som.prototype._computeInput = function(vectorArray, vectorNumber) {
-	som.prototype._clearArray.call(this, this.d);
-
-	for (i = 0; i <= (this.maxClusters - 1); i++) {
-		for (j = 0; j <= (this.vecLen - 1); j++) {
-			this.d[i] += Math.pow((this.w[i][j] - vectorArray[vectorNumber][j]), 2);
-		}
-	}
-}
-
+  this.d = [];
+  return JSON.stringify(this);
+};
+som.prototype.train = function(a) {
+  !a || a && 0 == a.length ? som.prototype._trainRandom.call(this) : som.prototype._training.call(this, a);
+};
+som.prototype.classify = function(a) {
+  for (var b = [], c = 0;c <= a.length - 1;c++) {
+    b.push(this.scaleInput(a[c]));
+  }
+  this.classificationCount++;
+  som.prototype._computeInput.call(this, [b], 0);
+  return dMin = som.prototype._minimum.call(this, this.d);
+};
+som.prototype.extract = function(a) {
+  return(a = this._nodeStatistics[a]) ? a : [];
+};
+som.prototype._training = function(a) {
+  var b = 0, c = !1, d = 0, e = 0;
+  som.prototype._log.call(this, "Neighborhood radius target " + this.radiusReductionPoint + " training...");
+  do {
+    b += 1;
+    for (vecNum = 0;vecNum <= a.length - 1;vecNum++) {
+      som.prototype._computeInput.call(this, a, vecNum), e = som.prototype._minimum.call(this, this.d), som.prototype._updateWeights.call(this, a, vecNum, e);
+    }
+    this.alpha *= this.decayRate;
+    this.alpha < this.radiusReductionPoint && 0 == c && (c = !0, d = b);
+    som.prototype._log.call(this, "Neighborhood radius " + this.alpha + " after " + b + " iterations.");
+  } while (this.alpha > this.minAlpha);
+  som.prototype._log.call(this, "Iterations: " + b + "");
+  som.prototype.iterations = b;
+  som.prototype._log.call(this, "Neighborhood radius reduced after " + d + " iterations.");
+  som.prototype._buildStatistics.call(this);
+};
+som.prototype._computeInput = function(a, b) {
+  som.prototype._clearArray.call(this, this.d);
+  for (i = 0;i <= this.maxClusters - 1;i++) {
+    for (j = 0;j <= this.vecLen - 1;j++) {
+      this.d[i] += Math.pow(this.w[i][j] - a[b][j], 2);
+    }
+  }
+};
 som.prototype._buildStatistics = function() {
-	var preClassificationCount = this.classificationCount;
-	var sampleClassifications = {};
-	for (var i = 0; i <= this.classificationDomainTrainingCount - 1; i++) {
-		var inputArray = [];
-		for (var m = 0; m <= this.vecLen - 1; m++)
-			inputArray.push(this._getRandomArbitary(this.scale.min, this.scale.max));
-		var classification = this.classify(inputArray);
-		if (!sampleClassifications[classification])
-			sampleClassifications[classification] = [];
-		sampleClassifications[classification].push(inputArray);
-	}
-	this._nodeStatistics = {};
-	for (var key in sampleClassifications) {
-		var group = sampleClassifications[key];
-		this._nodeStatistics[key] = [];
-		for (var c = 0; c <= this.vecLen - 1; c++) {
-			var componentStats = new Stats();
-			for (var g = 0; g <= group.length - 1; g++) {
-				var component = group[g][c];
-				componentStats.push(component);
-			}
-			this._nodeStatistics[key].push({
-				range: componentStats.range(),
-				amean : componentStats.amean(),
-				gmean : componentStats.gmean(),
-				median : componentStats.median(),
-				stddev : componentStats.stddev(),
-				gstddev : componentStats.gstddev(),
-				moe : componentStats.moe()
-			});
-		}
-	}
-	this.classificationCount = preClassificationCount;
-}
-
-som.prototype._updateWeights = function(trainingPattern, vectorNumber, dMin) {
-	for (i = 0; i <= (this.vecLen - 1); i++) {
-		this.w[dMin][i] = this.w[dMin][i] + (this.alpha * (trainingPattern[vectorNumber][i] -
-			this.w[dMin][i]));
-
-		if (this.alpha > this.radiusReductionPoint) {
-			if ((dMin > 0) && (dMin < (this.maxClusters - 1))) {
-				this.w[dMin - 1][i] = this.w[dMin - 1][i] +
-					(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin - 1][i]));
-				this.w[dMin + 1][i] = this.w[dMin + 1][i] +
-					(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin + 1][i]));
-			} else {
-				if (dMin == 0) {
-					this.w[dMin + 1][i] = this.w[dMin + 1][i] +
-						(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin + 1][i]));
-				} else {
-					this.w[dMin - 1][i] = this.w[dMin - 1][i] +
-						(this.alpha * (trainingPattern[vectorNumber][i] - this.w[dMin - 1][i]));
-				}
-			}
-		}
-	}
-}
-
-som.prototype._clearArray = function(NodeArray) {
-	for (i = 0; i <= (this.maxClusters - 1); i++) {
-		NodeArray[i] = 0.0;
-	}
-}
-
-som.prototype._minimum = function(nodeArray) {
-	var winner = 0;
-	var foundNewWinner = false;
-	var done = false;
-
-	do {
-		foundNewWinner = false;
-		for (i = 0; i <= (this.maxClusters - 1); i++) {
-			if (i != winner) {
-				if (nodeArray[i] < nodeArray[winner]) {
-					winner = i;
-					foundNewWinner = true;
-				}
-			}
-		}
-		if (foundNewWinner == false)
-			done = true;
-	} while (done != true);
-
-	return winner;
-}
-
-som.prototype._getRandomArbitary = function(min, max) {
-	return Math.random() * (max - min) + min;
-}
-
+  for (var a = this.classificationCount, b = {}, c = 0;c <= this.classificationDomainTrainingCount - 1;c++) {
+    for (var d = [], e = 0;e <= this.vecLen - 1;e++) {
+      d.push(this._getRandomArbitary(this.scale.min, this.scale.max));
+    }
+    e = this.classify(d);
+    b[e] || (b[e] = []);
+    b[e].push(d);
+  }
+  this._nodeStatistics = {};
+  for (var f in b) {
+    for (c = b[f], this._nodeStatistics[f] = [], d = 0;d <= this.vecLen - 1;d++) {
+      for (var e = new Stats, g = 0;g <= c.length - 1;g++) {
+        e.push(c[g][d]);
+      }
+      this._nodeStatistics[f].push({range:e.range(), amean:e.amean(), gmean:e.gmean(), median:e.median(), stddev:e.stddev(), gstddev:e.gstddev(), moe:e.moe()});
+    }
+  }
+  this.classificationCount = a;
+};
+som.prototype._updateWeights = function(a, b, c) {
+  for (i = 0;i <= this.vecLen - 1;i++) {
+    this.w[c][i] += this.alpha * (a[b][i] - this.w[c][i]), this.alpha > this.radiusReductionPoint && (0 < c && c < this.maxClusters - 1 ? (this.w[c - 1][i] += this.alpha * (a[b][i] - this.w[c - 1][i]), this.w[c + 1][i] += this.alpha * (a[b][i] - this.w[c + 1][i])) : 0 == c ? this.w[c + 1][i] += this.alpha * (a[b][i] - this.w[c + 1][i]) : this.w[c - 1][i] += this.alpha * (a[b][i] - this.w[c - 1][i]));
+  }
+};
+som.prototype._clearArray = function(a) {
+  for (i = 0;i <= this.maxClusters - 1;i++) {
+    a[i] = 0;
+  }
+};
+som.prototype._minimum = function(a) {
+  var b = 0, c = !1, d = !1;
+  do {
+    c = !1;
+    for (i = 0;i <= this.maxClusters - 1;i++) {
+      i != b && a[i] < a[b] && (b = i, c = !0);
+    }
+    0 == c && (d = !0);
+  } while (1 != d);
+  return b;
+};
+som.prototype._getRandomArbitary = function(a, b) {
+  return Math.random() * (b - a) + a;
+};
 som.prototype._trainRandom = function() {
-	var pattern = [];
-	for (var i = 0; i <= this.inputPatterns - 1; i++) {
-		var weightVector = [];
-		for (var j = 0; j <= this.vecLen - 1; j++)
-			weightVector.push(this._getRandomArbitary(this.scale.min, this.scale.max));
-		pattern.push(weightVector);
-	}
-	som.prototype.train.call(this, pattern);
-}
-
-
-som.prototype._log = function(msg) {
-	if (this.loggingEnabled) {
-		console.log(msg);
-	}
-}
-
-if (typeof exports === 'object') {
-	module.exports = som;
-} else if (typeof define === 'function' && define.amd) {
-	define(function() {
-		return som;
-	});
-} else {
-	this.som = som;
-}
+  for (var a = [], b = 0;b <= this.inputPatterns - 1;b++) {
+    for (var c = [], d = 0;d <= this.vecLen - 1;d++) {
+      c.push(this._getRandomArbitary(this.scale.min, this.scale.max));
+    }
+    a.push(c);
+  }
+  som.prototype.train.call(this, a);
+};
+som.prototype._log = function(a) {
+  this.loggingEnabled && console.log(a);
+};
+"object" === typeof exports ? module.exports = som : "function" === typeof define && define.amd ? define(function() {
+  return som;
+}) : this.som = som;
