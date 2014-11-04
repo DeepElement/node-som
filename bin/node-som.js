@@ -75,7 +75,7 @@ som.prototype.classify = function(a) {
     this.statistics[dMin].c++;
     for (var i = 0; i <= this.vecLen - 1; i++) {
         var value = a[i];
-        var stat = this.statistics[dMin].i;
+        var stat = this.statistics[dMin].i[i];
         if (stat.min > value)
             stat.min = value;
         if (stat.max < value)
