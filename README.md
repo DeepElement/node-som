@@ -58,35 +58,7 @@ var sample = [0.24, 0.34];
 // Call classify to receive your classification group/neuron
 var group = somInstance.classify(sample);
 
-/**
- * For the sake of intelligence, you can then extract your
- * domain boundaries from a stored group by component.
- */
-var groupDomainBoundaries = somInstance.extract(group);
-
-console.log(groupDomainBoundaries);
-
-~~~
-
-The output is enough to do some pretty hardcore analysis on the cluster domain (wisker plot, etc)
-
-~~~ js
- groupDomainBoundaries = [ 
-  { range: [ 0.002023763954639435, 999.9967189505696 ],
-    amean: 498.7489069010919,
-    gmean: 366.71135268678785,
-    median: 498.73221735469997,
-    stddev: 287.81665907708333,
-    gstddev: 2.7296960810401862,
-    moe: 1.7839061347985679 },
-  { range: [ 0.0025222543627023697, 999.9986472539604 ],
-    amean: 501.4137114080192,
-    gmean: 370.21158812427205,
-    median: 500.92090992257,
-    stddev: 288.3074606679444,
-    gstddev: 2.6996348342872674,
-    moe: 1.7869481545750234 } ]
-~~~
+// For the sake of intelligence, you can use the somInstance.statistics object to track known neuron usage
 
 ## Options
 ###loggingEnabled (bool)
