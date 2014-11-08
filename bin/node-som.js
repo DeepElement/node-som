@@ -23,7 +23,7 @@ var som = function(a) {
       this.w.push(c);
     }
   }
-  this.statistics = {};
+  this.statistics = a.statistics || {};
   this.d = a.d || [];
 };
 som.prototype.scaleInput = function(a) {
