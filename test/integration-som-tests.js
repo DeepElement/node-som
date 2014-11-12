@@ -27,6 +27,26 @@ describe('node-som integration tests', function() {
             should.exist(somRecovered.classificationCount);
             somRecovered.classificationCount.should.equal(1);
         });
+
+        it('custom property support', function() {
+            var keyValue = 'test-key';
+            var somInstance = new som({
+                inputLength: 5,
+                maxClusters: 1000,
+                loggingEnabled: false,
+                minAlpha: 0.5
+            });
+            somInstance.train();
+            somInstance.key = keyValue;
+
+            var somMomento = somInstance.serialize();
+
+            var parsed = JSON.parse(somMomento);
+            var somRecovered = new som(parsed);
+
+            should.exist(somRecovered.key);
+            somRecovered.key.should.equal(keyValue);
+        });
     });
 
     describe('scaling', function() {
