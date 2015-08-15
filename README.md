@@ -59,6 +59,7 @@ var sample = [0.24, 0.34];
 var group = somInstance.classify(sample);
 
 // For the sake of intelligence, you can use the somInstance.statistics object to track known neuron usage
+~~~
 
 ## Options
 ###loggingEnabled (bool)
